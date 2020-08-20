@@ -8,6 +8,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab
 	github.com/sworisbreathing/go-ibbq/v2 v2.0.0-20200617033556-a8933daef274
+	go.uber.org/zap v1.15.0
 	golang.org/x/sys v0.0.0-20191220142924-d4481acd189f // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )

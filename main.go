@@ -15,25 +15,23 @@ package main
 import (
 	"context"
 
-	glog "github.com/mgutz/logxi/v1"
-
-	"strconv"
 	"time"
 
 	"github.com/go-ble/ble"
 	"github.com/sworisbreathing/go-ibbq/v2"
+	"go.uber.org/zap"
 )
 
-var logger = glog.New("main")
+var logger, _ = zap.NewProduction()
 
 func temperatureReceived(temperatures []float64) {
-	logger.Info("Received temperature data", "temperatures", temperatures)
+	logger.Info("yep", zap.Float64("temps", temperatures[0]))
 }
 func batteryLevelReceived(batteryLevel int) {
-	logger.Info("Received battery data", "batteryPct", strconv.Itoa(batteryLevel))
+	logger.Info("Received battery data batteryPct", zap.Int("batterylevel", batteryLevel))
 }
 func statusUpdated(status ibbq.Status) {
-	logger.Info("Status updated", "status", status)
+	logger.Info("Status updated status")
 }
 
 func disconnectedHandler(cancel func(), done chan struct{}) func() {
@@ -45,27 +43,28 @@ func disconnectedHandler(cancel func(), done chan struct{}) func() {
 }
 
 func main() {
+
 	var err error
-	logger.Debug("initializing context")
+	logger.Info("initializing context")
 	ctx1, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	registerInterruptHandler(cancel)
 	ctx := ble.WithSigHandler(ctx1, cancel)
-	logger.Debug("context initialized")
+	logger.Info("context initialized")
 	var bbq ibbq.Ibbq
-	logger.Debug("instantiating ibbq struct")
+	logger.Info("instantiating ibbq struct")
 	done := make(chan struct{})
 	var config ibbq.Configuration
 	if config, err = ibbq.NewConfiguration(60*time.Second, 5*time.Minute); err != nil {
-		logger.Fatal("Error creating configuration", "err", err)
+		logger.Error("woops", zap.Error(err))
 	}
 	if bbq, err = ibbq.NewIbbq(ctx, config, disconnectedHandler(cancel, done), temperatureReceived, batteryLevelReceived, statusUpdated); err != nil {
-		logger.Fatal("Error creating iBBQ", "err", err)
+		logger.Error("woops", zap.Error(err))
 	}
-	logger.Debug("instantiated ibbq struct")
+	logger.Info("instantiated ibbq struct")
 	logger.Info("Connecting to device")
 	if err = bbq.Connect(); err != nil {
-		logger.Fatal("Error connecting to device", "err", err)
+		logger.Fatal("Error connecting to device")
 	}
 	logger.Info("Connected to device")
 	<-ctx.Done()
