@@ -64,7 +64,7 @@ func main() {
 	logger.Info("instantiated ibbq struct")
 	logger.Info("Connecting to device")
 	if err = bbq.Connect(); err != nil {
-		logger.Fatal("Error connecting to device")
+		logger.Error("Error connecting to device")
 	}
 	logger.Info("Connected to device")
 	<-ctx.Done()
